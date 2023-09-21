@@ -40,21 +40,20 @@ public class ExecBigDataSets {
     public static final Map<String, int[]> resultadoArquivado = new HashMap<>();
 
     static String[] dataSets = new String[]{
-        //        "ca-GrQc",
-        //        "ca-HepTh",
-        //        "ca-CondMat",
-        //        "ca-HepPh",
-        //        "ca-AstroPh",
-        //        "Douban",
-        //        "Delicious",
-        //        "BlogCatalog3",
-        //        "BlogCatalog2",
-        //        "Livemocha",
-        //        "BlogCatalog",
-        //        "BuzzNet",
-        //        "Last.fm", 
-        //        "YouTube2"
-        "Facebook-users"
+        "ca-GrQc",
+        "ca-HepTh",
+        "ca-CondMat",
+        "ca-HepPh",
+        "ca-AstroPh",
+        "Douban",
+        "Delicious",
+        "BlogCatalog3",
+        "BlogCatalog2",
+        "Livemocha",
+        "BlogCatalog",
+        "BuzzNet",
+        "Last.fm", //        "YouTube2",
+    //        "Facebook-users"
     };
     static AbstractHeuristic[] operations = null;
 
@@ -66,60 +65,29 @@ public class ExecBigDataSets {
     static int[] contIgual;
 
     public static void main(String... args) throws FileNotFoundException, IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-
-        TSSCordasco tss = new TSSCordasco();
-//        GraphTSSGreedy tssg = new GraphTSSGreedy();
-//        HNVA hnva = new HNVA();
-//        HNV2 hnv2 = new HNV2();
-//        HNV0 hnv0 = new HNV0();
-        CCMPanizi ccm = new CCMPanizi();
-
+//        Operações
         TIPDecomp tip = new TIPDecomp();
+        TSSCordasco tss = new TSSCordasco();
 
-        GreedyCordasco gc = new GreedyCordasco();
+        CCMPanizi ccm = new CCMPanizi();
+        ccm.setRefine(true);
+        ccm.setRefine2(true);
+
         GreedyDegree gd = new GreedyDegree();
+        gd.setRefine(true);
         gd.setRefine2(true);
+
         GreedyDeltaTss gdt = new GreedyDeltaTss();
         gdt.setRefine2(true);
-        GreedyBonusDist gdit = new GreedyBonusDist();
-        GreedyDifTotal gdft = new GreedyDifTotal();
-        gdft.setRefine(true);
-//        gdft.setRefine2(true);
+
         GreedyDeltaXDifTotal gdxd = new GreedyDeltaXDifTotal();
+
         GreedyDistAndDifDelta gdd = new GreedyDistAndDifDelta();
         gdd.setRefine(true);
         gdd.setRefine2(true);
 
-        GreedyDistAndDifDelta gdd1 = new GreedyDistAndDifDelta();
-        gdd1.setRefine2(false);
-
-        ccm.setRefine(true);
-        ccm.setRefine2(true);
-        gd.setRefine(true);
-        gd.setRefine2(true);
-
         operations = new AbstractHeuristic[]{
-            tss,
-            //            heur1,
-            //            heur2, 
-            //            heur3, heur4,
-            //            heur5,
-            //            heur5t,
-            //            tssg,
-            //            heur5t2
-            //            optm,
-            //            optm2,
-            //            tip,
-            //            hnv0, //            hnv1, 
-            //            hnv2
-            //            hnv0, gd, gdit, 
-            //            hnva
-            //            ccm,
-            //            gd, //            gdt
-            //                        gc,  gdt
-            //            gdft,
-            gdd1,
-            gdd
+            tss, tip, ccm, gd, gdt, gdxd, gdd
         };
         totalTime = new long[operations.length];
         result = new Integer[operations.length];
@@ -138,50 +106,23 @@ public class ExecBigDataSets {
         String strResultFile = "resultado-" + ExecBigDataSets.class.getSimpleName() + ".txt";
         File resultFile = new File(strResultFile);
         BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile, true));
-        for (String op : new String[]{
-            //            "m", 
-            //            "r", 
-            "k", //            "random"
-        }) {
-            if (op.equals("random")) {
-                for (AbstractHeuristic ab : operations) {
-                    ab.setR(null);
-                }
-                execOperations(op, 0, writer);
 
-            } else {
-                for (int k = 1; k <= 10; k++) {
-                    if (op.equals("r")) {
-                        for (AbstractHeuristic ab : operations) {
-                            ab.setR(k);
-                        }
-                        System.out.println("-------------\n\nR: " + k);
-                    } else if (op.equals("m")) {
-                        op = "m";
-                        double perc = ((float) k) / 10.0;
-                        for (AbstractHeuristic ab : operations) {
-                            ab.setPercent(perc);
-                        }
-                        System.out.println("-------------\n\nm: " + k);
-                    } else {
-                        op = "k";
-                        for (AbstractHeuristic ab : operations) {
-                            ab.setK(k);
-                        }
-                        System.out.println("-------------\n\nk: " + k);
-                    }
-                    execOperations(op, k, writer);
-                    System.out.println(
-                            " Partial ");
-                    for (int i = 1;
-                            i < operations.length;
-                            i++) {
-                        System.out.println(" -Operation: " + operations[i].getName());
-                        System.out.println("   * Best: " + contMelhor[i]);
-                        System.out.println("   * Worst: " + contPior[i]);
-                        System.out.println("   * Equal: " + contIgual[i]);
-                    }
-                }
+        for (int k = 1; k <= 10; k++) {
+            String op = "k";
+            for (AbstractHeuristic ab : operations) {
+                ab.setK(k);
+            }
+            System.out.println("-------------\n\nk: " + k);
+            execOperations(op, k, writer);
+            System.out.println(
+                    " Partial ");
+            for (int i = 1;
+                    i < operations.length;
+                    i++) {
+                System.out.println(" -Operation: " + operations[i].getName());
+                System.out.println("   * Best: " + contMelhor[i]);
+                System.out.println("   * Worst: " + contPior[i]);
+                System.out.println("   * Equal: " + contIgual[i]);
             }
         }
 
